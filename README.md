@@ -1,75 +1,89 @@
-# React + TypeScript + Vite
+# Projeto Clima ☀️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação para consultar a previsão do tempo de cidades brasileiras, construída com React, TypeScript e Vite. Os dados são obtidos pela BrasilAPI, nos endpoints de meteorologia do CPTEC.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Busca de cidades pelo nome.
+- Seleção da cidade e do estado entre os resultados.
+- Exibição do primeiro dia retornado pela API: data, condição do tempo, temperaturas mínima e máxima e índice UV.
+- Mensagens de carregamento e de erro durante as consultas.
 
-## React Compiler
+## Tecnologias
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+React 19, TypeScript 6, Vite 8, Context API, Fetch API e ESLint. Para execução em contêiner, o projeto inclui Docker e Nginx.
 
-## Expanding the ESLint configuration
+## Executar localmente
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Use Node.js 22.12 ou superior e npm.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+git clone https://github.com/phjsilva/projetoClima.git
+cd projetoClima
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Acesse o endereço exibido pelo Vite no terminal (normalmente `http://localhost:5173`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Digite o nome de uma cidade, como `Guararema`, e pressione **Enter**.
+2. Clique na cidade desejada na lista de resultados.
+3. Consulte a previsão exibida no cartão.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts
 
+| Comando | Descrição |
+| --- | --- |
+| `npm run dev` | Inicia o servidor de desenvolvimento. |
+| `npm run build` | Verifica o TypeScript e gera os arquivos de produção em `dist/`. |
+| `npm run preview` | Serve o build localmente para conferência; execute o build antes. |
+| `npm run lint` | Analisa o código com ESLint. |
+
+## API de clima
+
+As requisições são feitas diretamente pelo navegador. A integração está em [`src/services/weatherService.ts`](src/services/weatherService.ts) e não exige chave de API na configuração atual.
+
+URL base:
+
+```text
+https://brasilapi.com.br/api/cptec/v1
 ```
+
+| Rota | Uso |
+| --- | --- |
+| `/cidade/{nome}` | Busca cidades pelo nome, codificado para uso na URL. |
+| `/clima/previsao/{id}` | Busca a previsão pelo identificador da cidade retornado na busca. |
+
+Exemplo de busca: <https://brasilapi.com.br/api/cptec/v1/cidade/Guararema>.
+
+As consultas dependem de conexão com a internet e da disponibilidade dos dados na API. Em caso de erro, confira a requisição e a resposta na aba **Network/Rede** das ferramentas do navegador.
+
+## Executar com Docker
+
+Com o Docker instalado e em execução, rode na raiz do projeto:
+
+```bash
+docker build -t projeto-clima .
+docker run --rm -p 8080:80 projeto-clima
+```
+
+Acesse `http://localhost:8080`. O Dockerfile gera o build em uma etapa com Node.js e serve os arquivos em outra com Nginx. A configuração em [`nginx.conf`](nginx.conf) inclui compressão gzip, cache para assets e fallback para a aplicação.
+
+## Estrutura do projeto
+
+```text
+src/
+├── assets/       # Imagens e recursos visuais
+├── components/   # Busca, lista de cidades e cartão de previsão
+├── contexts/     # Definição do contexto de clima
+├── hooks/        # Hook de acesso ao contexto
+├── providers/    # Estado, carregamento e consultas de clima
+├── services/     # Integração com a BrasilAPI
+├── types/        # Tipos das cidades e previsões
+├── App.tsx       # Composição da tela principal
+└── main.tsx      # Entrada da aplicação
+```
+
+## Autor
+
+[phjsilva](https://github.com/phjsilva)
